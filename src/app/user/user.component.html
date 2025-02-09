@@ -1,0 +1,20 @@
+<div class="card bg-neutral">
+  <tsm-table
+    class="card-body"
+    [items]="users()"
+    [track]="trackBy"
+    [itemRef]="itemRef"
+  >
+    <ng-template #itemRef let-item="item">
+      <tr>
+        <td>{{ item?.name }}</td>
+      </tr>
+    </ng-template>
+    <tr header>
+      <th>Name</th>
+    </tr>
+    <tr empty>
+      <td>Empty result</td>
+    </tr>
+  </tsm-table>
+</div>
