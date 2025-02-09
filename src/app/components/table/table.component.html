@@ -22,42 +22,64 @@
   </button>
 </ng-template>
 
-<div class="w-full flex flex-col gap-4 overflow-x-auto">
-  <table class="table">
-    <ng-content select="thead">
-      <thead>
-        <ng-content select="tr[header]"></ng-content>
-      </thead>
-    </ng-content>
-    <ng-content select="tbody">
-      <tbody>
-        @for (item of items(); track track()(item)) {
-          <ng-container
-            [ngTemplateOutlet]="itemRef()"
-            [ngTemplateOutletContext]="{ item }"
-          ></ng-container>
-        } @empty {
-          <ng-content select="tr[empty]">
-            <tr>
-              <td>Empty</td>
-            </tr>
-          </ng-content>
-        }
-      </tbody>
-    </ng-content>
-  </table>
+<div class="flex flex-col gap-4">
+  <div class="flex flex-col w-full md:max-w-80">
+    <label
+      for="search"
+      class="input input-bordered flex items-center gap-2 bg-transparent"
+    >
+      <input
+        type="text"
+        name="search"
+        id="search"
+        class="min-w-0 grow"
+        [value]="search()"
+        placeholder="Search"
+      />
+      <svg-icon
+        src="icons/icon_search.svg"
+        [svgStyle]="{ fill: 'currentColor' }"
+      ></svg-icon>
+    </label>
+    <button class="hidden" type="submit" name="page" value="1">Search</button>
+  </div>
+  <div class="w-full flex overflow-x-auto">
+    <table class="table">
+      <ng-content select="thead">
+        <thead>
+          <ng-content select="tr[header]"></ng-content>
+        </thead>
+      </ng-content>
+      <ng-content select="tbody">
+        <tbody>
+          @for (item of items(); track track()(item)) {
+            <ng-container
+              [ngTemplateOutlet]="itemRef()"
+              [ngTemplateOutletContext]="{ item }"
+            ></ng-container>
+          } @empty {
+            <ng-content select="tr[empty]">
+              <tr>
+                <td>Empty</td>
+              </tr>
+            </ng-content>
+          }
+        </tbody>
+      </ng-content>
+    </table>
+  </div>
 
   <div
     class="flex flex-col items-center justify-center gap-4 md:justify-end md:flex-row"
   >
+    <input type="hidden" name="limit" [value]="limit()" />
+    <div>{{ displayText() }}</div>
     <div class="join">
-      @let currentPage = page();
-
       <ng-container
         [ngTemplateOutlet]="paginationButton"
         [ngTemplateOutletContext]="{
           page: 1,
-          disabled: currentPage <= 2,
+          disabled: currentPage() <= 2,
           icon: 'icons/icon_first_page.svg'
         }"
       ></ng-container>
@@ -65,7 +87,7 @@
         [ngTemplateOutlet]="paginationButton"
         [ngTemplateOutletContext]="{
           page: page() - 1,
-          disabled: currentPage === 1,
+          disabled: currentPage() === 1,
           icon: 'icons/icon_navigate_before.svg'
         }"
       ></ng-container>
@@ -75,7 +97,7 @@
           [ngTemplateOutlet]="paginationButton"
           [ngTemplateOutletContext]="{
             page: page,
-            active: page === currentPage,
+            active: page === currentPage(),
             text: page
           }"
         ></ng-container>
@@ -84,7 +106,7 @@
         [ngTemplateOutlet]="paginationButton"
         [ngTemplateOutletContext]="{
           page: page() + 1,
-          disabled: currentPage >= pages(),
+          disabled: currentPage() >= pages(),
           icon: 'icons/icon_navigate_next.svg'
         }"
       ></ng-container>
@@ -92,7 +114,7 @@
         [ngTemplateOutlet]="paginationButton"
         [ngTemplateOutletContext]="{
           page: 1,
-          disabled: currentPage > pages() - 2,
+          disabled: currentPage() > pages() - 2,
           icon: 'icons/icon_last_page.svg'
         }"
       ></ng-container>
