@@ -1,4 +1,5 @@
 export * from './assert'
+export * from './delay'
 export * from './mock'
 export * from './pageable'
 export * from './result'
