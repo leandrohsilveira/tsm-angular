@@ -1,5 +1,11 @@
 import { NgTemplateOutlet } from '@angular/common'
-import { Component, computed, input, TemplateRef } from '@angular/core'
+import {
+  Component,
+  computed,
+  contentChild,
+  input,
+  TemplateRef
+} from '@angular/core'
 import { SvgIconComponent } from 'angular-svg-icon'
 import { formatText } from '../../util'
 
@@ -31,6 +37,8 @@ export class TableComponent<T> {
     DEFAULT_DISPLAY_TEXT_TEMPLATES
   )
 
+  itemRef = contentChild.required(TemplateRef)
+
   pages = computed(() => Math.ceil(this.count() / this.limit()))
   offsetLeft = computed(() => Math.min(Math.max(this.page() - 1, 0), 2))
   offsetRight = computed(() =>
@@ -53,8 +61,6 @@ export class TableComponent<T> {
   start = computed(() => Math.max(this.page() - 1, 0) * this.limit())
   end = computed(() => Math.min(this.start() + this.limit(), this.count()))
   currentPage = computed(() => this.page())
-
-  itemRef = input.required<TemplateRef<unknown>>()
   displayText = computed(() => {
     const templates = this.displayTextTemplate()
     let template = templates.many ?? DEFAULT_DISPLAY_TEXT_TEMPLATES.many

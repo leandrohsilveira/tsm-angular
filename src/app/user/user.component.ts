@@ -11,11 +11,12 @@ import { Result } from '../util'
 })
 export class UserComponent {
   result = input.required<Result<User>>()
-  users = computed(() => this.result().items)
-  count = computed(() => this.result().count)
   page = input(1, { transform: numberTransformer(1) })
   limit = input(10, { transform: numberTransformer(10) })
   search = input('', { transform: stringTransformer() })
+
+  users = computed(() => this.result().items)
+  count = computed(() => this.result().count)
 
   trackBy(item: User) {
     return item.id

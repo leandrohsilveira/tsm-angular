@@ -11,7 +11,6 @@
       one: 'Showing the only one user',
       many: 'Showing {start} - {end} of {count} users'
     }"
-    [itemRef]="itemRef"
   >
     <tr header>
       <th>Name</th>
@@ -19,7 +18,7 @@
     <tr empty>
       <td>Empty result</td>
     </tr>
-    <ng-template #itemRef let-item="item">
+    <ng-template let-item="item">
       <tr>
         <td>{{ item?.name }}</td>
       </tr>
