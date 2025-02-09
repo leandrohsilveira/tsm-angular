@@ -6,11 +6,5 @@ import daisyui from "daisyui"
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ["./src/**/*.{html,js,svelte,ts}"],
-
-  theme: {
-    extend: {}
-  },
-
-  plugins: [typography, containerQueries, aspectRatio, daisyui],
-  daisyui: {}
+  plugins: [typography, containerQueries, aspectRatio, daisyui]
 }
