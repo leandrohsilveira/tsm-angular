@@ -1,6 +1,8 @@
-import { Component, input } from '@angular/core'
+import { Component, computed, input } from '@angular/core'
 import { TableComponent } from '../components'
+import { numberTransformer, stringTransformer } from '../transformers'
 import { User } from './user.type'
+import { Result } from '../util'
 
 @Component({
   selector: 'tsm-user',
@@ -8,10 +10,12 @@ import { User } from './user.type'
   templateUrl: './user.component.html'
 })
 export class UserComponent {
-  users = input<User[]>([])
-  page = input(1, { transform: Number })
-  limit = input(10, { transform: Number })
-  search = input('')
+  result = input.required<Result<User>>()
+  users = computed(() => this.result().items)
+  count = computed(() => this.result().count)
+  page = input(1, { transform: numberTransformer(1) })
+  limit = input(10, { transform: numberTransformer(10) })
+  search = input('', { transform: stringTransformer() })
 
   trackBy(item: User) {
     return item.id

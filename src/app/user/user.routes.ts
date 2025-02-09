@@ -8,7 +8,7 @@ const userRoutes: Routes = [
     pathMatch: 'full',
     component: UserComponent,
     resolve: {
-      users: userResolver
+      result: userResolver
     }
   }
 ]

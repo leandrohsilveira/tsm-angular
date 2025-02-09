@@ -1,20 +1,28 @@
-<div class="card bg-neutral">
+<form class="card bg-neutral" method="get">
   <tsm-table
     class="card-body"
     [items]="users()"
     [track]="trackBy"
+    [page]="page()"
+    [limit]="limit()"
+    [search]="search()"
+    [count]="count()"
+    [displayTextTemplate]="{
+      one: 'Showing the only one user',
+      many: 'Showing {start} - {end} of {count} users'
+    }"
     [itemRef]="itemRef"
   >
-    <ng-template #itemRef let-item="item">
-      <tr>
-        <td>{{ item?.name }}</td>
-      </tr>
-    </ng-template>
     <tr header>
       <th>Name</th>
     </tr>
     <tr empty>
       <td>Empty result</td>
     </tr>
+    <ng-template #itemRef let-item="item">
+      <tr>
+        <td>{{ item?.name }}</td>
+      </tr>
+    </ng-template>
   </tsm-table>
-</div>
+</form>

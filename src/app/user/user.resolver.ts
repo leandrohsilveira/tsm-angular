@@ -1,11 +1,11 @@
 import type { ResolveFn } from '@angular/router'
-import { User } from './user.type'
+import { randomDelay, Result, searchAndPaginate } from '../util'
+import type { User } from './user.type'
+import { USERS } from './user.data'
 
-export const userResolver: ResolveFn<User[]> = async () => {
-  return new Promise(resolve => {
-    setTimeout(
-      () => resolve([{ id: crypto.randomUUID(), name: 'Leandro' }]),
-      200
-    )
-  })
+export const userResolver: ResolveFn<Result<User>> = async ({
+  queryParamMap
+}) => {
+  await randomDelay(200, 1500)
+  return searchAndPaginate(queryParamMap, USERS, 'name')
 }
