@@ -1,0 +1,101 @@
+<ng-template
+  #paginationButton
+  let-page="page"
+  let-active="active"
+  let-disabled="disabled"
+  let-text="text"
+  let-icon="icon"
+>
+  <button
+    class="join-item btn btn-outline btn-sm w-8"
+    [class.btn-active]="active"
+    type="submit"
+    name="page"
+    [value]="page"
+    [disabled]="disabled"
+  >
+    @if (text) {
+      {{ text }}
+    } @else if (icon) {
+      <svg-icon [src]="icon" [svgStyle]="{ fill: 'currentColor' }"></svg-icon>
+    }
+  </button>
+</ng-template>
+
+<div class="w-full flex flex-col gap-4 overflow-x-auto">
+  <table class="table">
+    <ng-content select="thead">
+      <thead>
+        <ng-content select="tr[header]"></ng-content>
+      </thead>
+    </ng-content>
+    <ng-content select="tbody">
+      <tbody>
+        @for (item of items(); track track()(item)) {
+          <ng-container
+            [ngTemplateOutlet]="itemRef()"
+            [ngTemplateOutletContext]="{ item }"
+          ></ng-container>
+        } @empty {
+          <ng-content select="tr[empty]">
+            <tr>
+              <td>Empty</td>
+            </tr>
+          </ng-content>
+        }
+      </tbody>
+    </ng-content>
+  </table>
+
+  <div
+    class="flex flex-col items-center justify-center gap-4 md:justify-end md:flex-row"
+  >
+    <div class="join">
+      @let currentPage = page();
+
+      <ng-container
+        [ngTemplateOutlet]="paginationButton"
+        [ngTemplateOutletContext]="{
+          page: 1,
+          disabled: currentPage <= 2,
+          icon: 'icons/icon_first_page.svg'
+        }"
+      ></ng-container>
+      <ng-container
+        [ngTemplateOutlet]="paginationButton"
+        [ngTemplateOutletContext]="{
+          page: page() - 1,
+          disabled: currentPage === 1,
+          icon: 'icons/icon_navigate_before.svg'
+        }"
+      ></ng-container>
+
+      @for (page of pageList(); track page) {
+        <ng-container
+          [ngTemplateOutlet]="paginationButton"
+          [ngTemplateOutletContext]="{
+            page: page,
+            active: page === currentPage,
+            text: page
+          }"
+        ></ng-container>
+      }
+      <ng-container
+        [ngTemplateOutlet]="paginationButton"
+        [ngTemplateOutletContext]="{
+          page: page() + 1,
+          disabled: currentPage >= pages(),
+          icon: 'icons/icon_navigate_next.svg'
+        }"
+      ></ng-container>
+      <ng-container
+        [ngTemplateOutlet]="paginationButton"
+        [ngTemplateOutletContext]="{
+          page: 1,
+          disabled: currentPage > pages() - 2,
+          icon: 'icons/icon_last_page.svg'
+        }"
+      ></ng-container>
+    </div>
+  </div>
+</div>
