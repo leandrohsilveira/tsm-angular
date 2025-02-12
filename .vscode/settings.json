@@ -3,6 +3,9 @@
     "angular-*": {
       "externalTemplate": true,
       "skipStyle": false
+    },
+    "angular-component": {
+      "skipChangeDetectionOnPush": true
     }
   },
   "editor.formatOnSave": true,
