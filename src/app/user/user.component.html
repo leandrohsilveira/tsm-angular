@@ -1,27 +1,28 @@
-<form class="card bg-neutral" method="get">
+<p-card>
   <tsm-table
     class="card-body"
+    [loading]="controller()?.loading() ?? false"
     [items]="users()"
     [track]="trackBy"
     [page]="page()"
     [limit]="limit()"
     [search]="search()"
     [count]="count()"
-    [displayTextTemplate]="{
+    [displayTextTemplates]="{
       one: 'Showing the only one user',
-      many: 'Showing {start} - {end} of {count} users'
+      many: 'Showing {first} - {last} of {totalRecords} users'
     }"
+    (stateChange)="controller()?.onChange($event)"
   >
-    <tr header>
-      <th>Name</th>
-    </tr>
-    <tr empty>
-      <td>Empty result</td>
-    </tr>
-    <ng-template let-item="item">
+    <ng-template #header>
       <tr>
-        <td>{{ item?.name }}</td>
+        <th>Name</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-user>
+      <tr>
+        <td>{{ user?.name }}</td>
       </tr>
     </ng-template>
   </tsm-table>
-</form>
+</p-card>

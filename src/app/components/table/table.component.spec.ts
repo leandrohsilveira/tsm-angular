@@ -29,17 +29,8 @@ describe('TableComponent', () => {
     expect(component.count()).toBe(0)
     expect(component.page()).toBe(1)
     expect(component.limit()).toBe(10)
-    expect(component.displayTextTemplate()).toEqual(
+    expect(component.displayTextTemplates()).toEqual(
       DEFAULT_DISPLAY_TEXT_TEMPLATES
     )
-    expect(component.pages()).toBe(0)
-    expect(component.offsetLeft()).toBe(0)
-    expect(component.offsetRight()).toBe(0)
-    expect(component.firstPage()).toBe(1)
-    expect(component.lastPage()).toBe(0)
-    expect(component.pageList()).toEqual([1])
-    expect(component.start()).toBe(0)
-    expect(component.end()).toBe(0)
-    expect(component.currentPage()).toBe(1)
   })
 })

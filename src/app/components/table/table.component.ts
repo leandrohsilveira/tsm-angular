@@ -3,75 +3,102 @@ import {
   Component,
   computed,
   contentChild,
+  ElementRef,
   input,
-  TemplateRef
+  model,
+  output,
+  TemplateRef,
+  viewChild
 } from '@angular/core'
-import { SvgIconComponent } from 'angular-svg-icon'
-import { formatText } from '../../util'
-
-interface DisplayTextTemplates {
-  empty: string
-  one: string
-  many: string
-}
+import { FloatLabelModule } from 'primeng/floatlabel'
+import { InputTextModule } from 'primeng/inputtext'
+import { PaginatorModule, PaginatorState } from 'primeng/paginator'
+import { TableModule } from 'primeng/table'
+import { numberTransformer } from '../../transformers'
+import { assert } from '../../util'
+import { DisplayTextTemplates, TableState } from './table.type'
 
 export const DEFAULT_DISPLAY_TEXT_TEMPLATES = {
   empty: '',
   one: 'Showing the only one item',
-  many: 'Showing {start} - {end} of {count} items'
+  many: 'Showing {first} - {last} of {totalRecords} items'
 }
 
 @Component({
   selector: 'tsm-table',
-  imports: [NgTemplateOutlet, SvgIconComponent],
+  imports: [
+    NgTemplateOutlet,
+    TableModule,
+    InputTextModule,
+    FloatLabelModule,
+    PaginatorModule
+  ],
   templateUrl: './table.component.html'
 })
 export class TableComponent<T> {
   items = input.required<T[]>()
-  track = input.required<(item: T) => string>()
-  search = input('')
-  count = input(0)
-  page = input(1)
-  limit = input(10)
-  displayTextTemplate = input<Partial<DisplayTextTemplates>>(
+  track = input.required<((item: T) => string) | keyof T>()
+  page = model(1)
+  limit = model(10)
+  search = model('')
+  loading = input(false)
+  count = input(0, { transform: numberTransformer() })
+  displayTextTemplates = input<Partial<DisplayTextTemplates>>(
     DEFAULT_DISPLAY_TEXT_TEMPLATES
   )
 
-  itemRef = contentChild.required(TemplateRef)
+  stateChange = output<TableState>()
 
-  pages = computed(() => Math.ceil(this.count() / this.limit()))
-  offsetLeft = computed(() => Math.min(Math.max(this.page() - 1, 0), 2))
-  offsetRight = computed(() =>
-    Math.min(Math.max(this.pages() - this.page(), 0), 2)
-  )
-  firstPage = computed(() =>
-    Math.max(this.page() - (this.offsetLeft() + (2 - this.offsetRight())), 1)
-  )
-  lastPage = computed(() =>
-    Math.min(
-      this.page() + (this.offsetRight() + (3 - (this.offsetLeft() + 1))),
-      this.pages()
-    )
-  )
-  pageList = computed(() =>
-    Array.from({
-      length: Math.max(this.lastPage() - this.firstPage() + 1, 1)
-    }).map((_, index) => this.firstPage() + index)
-  )
-  start = computed(() => Math.max(this.page() - 1, 0) * this.limit())
-  end = computed(() => Math.min(this.start() + this.limit(), this.count()))
-  currentPage = computed(() => this.page())
-  displayText = computed(() => {
-    const templates = this.displayTextTemplate()
-    let template = templates.many ?? DEFAULT_DISPLAY_TEXT_TEMPLATES.many
-    if (this.count() === 0)
-      template = templates.empty ?? DEFAULT_DISPLAY_TEXT_TEMPLATES.empty
-    else if (this.count() === 1)
-      template = templates.one ?? DEFAULT_DISPLAY_TEXT_TEMPLATES.one
-    return formatText(template, {
-      start: this.start() + 1,
-      end: this.end(),
-      count: this.count()
-    })
+  trackBy = computed(() => {
+    const track = this.track()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    return typeof track === 'function' ? (track as any) : undefined
   })
+  dataKey = computed(() => {
+    const track = this.track()
+    return typeof track === 'string' ? String(track) : undefined
+  })
+  displayTextTemplate = computed(() => {
+    const templates = this.displayTextTemplates()
+    if (this.count() === 0)
+      return templates.empty ?? DEFAULT_DISPLAY_TEXT_TEMPLATES.empty
+    else if (this.count() === 1)
+      return templates.one ?? DEFAULT_DISPLAY_TEXT_TEMPLATES.one
+    return templates.many ?? DEFAULT_DISPLAY_TEXT_TEMPLATES.many
+  })
+
+  first = computed(() => Math.max(this.page() * this.limit() - this.limit(), 0))
+
+  pageRef = viewChild.required<ElementRef<HTMLInputElement>>('pageRef')
+  limitRef = viewChild.required<ElementRef<HTMLInputElement>>('limitRef')
+
+  bodyRef = contentChild.required<TemplateRef<unknown>>('body')
+
+  handlePageChange({ first, rows }: PaginatorState) {
+    first ??= this.first()
+    rows ??= this.limit()
+    this.page.set(Math.max(0, Math.floor((first + rows) / rows)))
+    this.limit.set(rows)
+    this.dispatchStateChange()
+  }
+
+  handleSearch(event: Event) {
+    event.preventDefault()
+    const formData = new FormData(event.target as HTMLFormElement)
+    const search = formData.get('search')
+    assert(
+      typeof search === 'string',
+      'TableComponent search input value should be a string'
+    )
+    this.search.set(search)
+    this.dispatchStateChange()
+  }
+
+  private dispatchStateChange() {
+    this.stateChange.emit({
+      limit: this.limit(),
+      page: this.page(),
+      search: this.search()
+    })
+  }
 }
